@@ -1,4 +1,4 @@
-ROM alpine:latest
+FROM alpine:latest
 RUN echo "https://mirrors.aliyun.com/alpine/v3.11/main/" > /etc/apk/repositories && \
     echo "https://mirrors.aliyun.com/alpine/v3.11/community/" >> /etc/apk/repositories && \
     apk add nginx && mkdir /run/nginx/
