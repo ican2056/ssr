@@ -1,6 +1,6 @@
-FROM alpine:latest
-RUN echo "https://mirrors.aliyun.com/alpine/v3.11/main/" > /etc/apk/repositories && \
-    echo "https://mirrors.aliyun.com/alpine/v3.11/community/" >> /etc/apk/repositories && \
-    apk add nginx && mkdir /run/nginx/
+FROM openjdk:8
+WORKDIR /app
+
+COPY classes /app/
 EXPOSE 80
-ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
+ENTRYPOINT [ "java", "-cp", ".:./lib/*.jar", "ServerService"]
