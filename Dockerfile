@@ -1,6 +1,6 @@
-FROM openjdk:8
-WORKDIR /app
-
-COPY ./classes /app/
+FROM alpine:latest
+RUN echo "https://mirrors.aliyun.com/alpine/v3.11/main/" > /etc/apk/repositories && \
+    echo "https://mirrors.aliyun.com/alpine/v3.11/community/" >> /etc/apk/repositories && \
+    apk add nginx && mkdir /run/nginx/
 EXPOSE 80
-ENTRYPOINT [ "java", "-cp", ".:./lib/netty-all-4.1.42.Final.jar", "ServerService"]
+ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
