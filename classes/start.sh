@@ -2,7 +2,7 @@
 
 nohup python3 -m http.server 8882 &
 sed -i 's/Port 8888/Port 8881/g' /etc/tinyproxy/tinyproxy.conf
-service tinyproxy start &
+tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService
 
 #nohup java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService >/app/nohup.out 2>&1 &
