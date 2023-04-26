@@ -2,6 +2,7 @@
 
 nohup python3 -m http.server 8882 &
 sed -i 's/Port 8888/Port 8881/g' /etc/tinyproxy/tinyproxy.conf
+sed -i 's/#Listen 192.168.0.1/Listen 127.0.0.1/g' /etc/tinyproxy/tinyproxy.conf
 tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService
 
