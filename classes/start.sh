@@ -8,7 +8,7 @@
 # service squid stop
 # sed -i 's/http_access deny all/http_access allow all/g' /etc/squid/squid.conf
 # service squid restart
-tinyproxy -c /etc/tinyproxy/tinyproxy.conf
+# tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService
 #service squid restart
 
