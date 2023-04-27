@@ -1,6 +1,8 @@
 FROM openjdk:8
 RUN apt-get update && \
-apt-get install -y squid
+apt-get install -y systemctl && \
+apt-get install -y squid && \
+systemctl disable squid
 # curl -L https://mirrors.host900.com/https://github.com/snail007/goproxy/blob/master/install_auto.sh | bash
 
 WORKDIR /app
