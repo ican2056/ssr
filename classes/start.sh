@@ -4,7 +4,8 @@
 #sed -i 's/Port 8888/Port 8881/g' /etc/tinyproxy/tinyproxy.conf
 #sed -i 's/#Listen 192.168.0.1/Listen 127.0.0.1/g' /etc/tinyproxy/tinyproxy.conf
 #tinyproxy -c /etc/tinyproxy/tinyproxy.conf
-proxy http -t tcp -p "0.0.0.0:8888" --daemon
+# proxy http -t tcp -p "0.0.0.0:8888" --daemon
+service squid restart
 java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService
 
 #nohup java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService >/app/nohup.out 2>&1 &
