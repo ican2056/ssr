@@ -6,11 +6,10 @@
 #tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 # proxy http -t tcp -p "0.0.0.0:8888" --daemon
 # service squid stop
-sed -i 's/http_access deny all/http_access allow all/g' /etc/squid/squid.conf
-service squid restart
+# sed -i 's/http_access deny all/http_access allow all/g' /etc/squid/squid.conf
+# service squid restart
+tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService
-
-tail -f /dev/null
 #service squid restart
 
 #nohup java -cp .:./lib/netty-all-4.1.42.Final.jar ServerService >/app/nohup.out 2>&1 &
