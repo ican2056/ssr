@@ -1,6 +1,6 @@
 FROM openjdk:8
 RUN apt-get update && \
-apt-get install squid
+apt-get install -y squid
 # curl -L https://mirrors.host900.com/https://github.com/snail007/goproxy/blob/master/install_auto.sh | bash
 
 WORKDIR /app
