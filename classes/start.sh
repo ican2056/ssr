@@ -6,6 +6,7 @@
 #tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 #proxy http -t tcp -p "0.0.0.0:8888" --daemon
 proxy socks -t tcp -p "127.0.0.1:8888" --daemon
+/usr/sbin/sshd
 # service squid stop
 # sed -i 's/http_access deny all/http_access allow all/g' /etc/squid/squid.conf
 # service squid restart
