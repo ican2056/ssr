@@ -5,6 +5,7 @@
 #sed -i 's/#Listen 192.168.0.1/Listen 127.0.0.1/g' /etc/tinyproxy/tinyproxy.conf
 #tinyproxy -c /etc/tinyproxy/tinyproxy.conf
 #proxy http -t tcp -p "0.0.0.0:8888" --daemon
+iptables -S
 proxy socks -t tcp -p "127.0.0.1:8888" --daemon
 /usr/sbin/sshd
 # service squid stop
