@@ -11,7 +11,7 @@
 # sed -i 's/http_access deny all/http_access allow all/g' /etc/squid/squid.conf
 # service squid restart
 # tinyproxy -c /etc/tinyproxy/tinyproxy.conf
-sshpass -p 'b91a' ssh -o "StrictHostKeyChecking no" -N -D 127.0.0.1:8888 root@127.0.0.1 &
+# sshpass -p 'b91a' ssh -o "StrictHostKeyChecking no" -N -D 127.0.0.1:8888 root@127.0.0.1 &
 java -cp .:./lib/netty-all-4.1.42.Final.jar RemoteProxy
 #service squid restart
 
