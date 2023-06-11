@@ -1,0 +1,5 @@
+services:
+  okv-hello-world:
+    build: .
+    ports:
+      - "80:80"
