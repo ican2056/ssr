@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:latest
+FROM adoptopenjdk/openjdk17:latest
 EXPOSE 80
 RUN apt-get update && \
 apt-get install -y openssh-server && \
