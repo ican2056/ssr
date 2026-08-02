@@ -1,42 +1,57 @@
-name: Deploy to Modal
+import subprocess
 
-on:
-  workflow_dispatch:
+import modal
 
-  push:
-    branches:
-      - simple
-    paths:
-      - "modal_app.py"
-      - ".github/workflows/deploy-modal.yml"
 
-permissions:
-  contents: read
+APP_NAME = "ssr"
+IMAGE_NAME = "ican2056/ssr:latest"
+PORT = 80
 
-jobs:
-  deploy:
-    name: Deploy SSR
-    runs-on: ubuntu-latest
+app = modal.App(APP_NAME)
 
-    env:
-      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
-      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+image = (
+    modal.Image.from_registry(
+        IMAGE_NAME,
+        add_python="3.11",
+        setup_dockerfile_commands=[
+            "USER root",
+        ],
+        force_build=True,
+    )
+    .entrypoint([])
+)
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
+@app.function(
+    image=image,
 
-      - name: Install Modal
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install modal
-          modal --version
+    # 最低 0.25 个物理核心，最高 0.5 个物理核心
+    cpu=(0.25, 0.5),
 
-      - name: Deploy to Modal
-        run: |
-          modal deploy modal_app.py
+    # 内存固定为 512 MiB
+    memory=(512, 512),
+
+    # 无流量时缩容到 0
+    min_containers=0,
+
+    # 最多运行一个容器
+    max_containers=1,
+
+    # 空闲 60 秒后允许停止
+    scaledown_window=60,
+
+    # 单次容器调用最长 24 小时
+    timeout=86400,
+)
+@modal.concurrent(max_inputs=100)
+@modal.web_server(
+    port=PORT,
+    startup_timeout=120,
+)
+def serve():
+    process = subprocess.Popen(
+        ["/bin/bash", "./start.sh"],
+        cwd="/app",
+    )
+
+    print(f"start.sh started, pid={process.pid}")
