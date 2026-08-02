@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
 
+echo "当前身份：$(id)"
+grep '^NoNewPrivs:' /proc/self/status || true
+
+# EpisCloud 强制以非 root 启动时，通过 sudo 重新执行本脚本
+if [ "$(id -u)" -ne 0 ]; then
+    echo "尝试通过 sudo 提权到 root..."
+    exec /usr/bin/sudo -n /bin/bash /app/start.sh
+fi
+
+echo "提权后身份：$(id)"
+
 DROPBEAR_DIR=/tmp/dropbear
 DROPBEAR_RSA_KEY="$DROPBEAR_DIR/dropbear_rsa_host_key"
 DROPBEAR_ECDSA_KEY="$DROPBEAR_DIR/dropbear_ecdsa_host_key"
@@ -40,6 +51,6 @@ if ! kill -0 "$DROPBEAR_PROCESS" 2>/dev/null; then
     exit 1
 fi
 
-echo "Dropbear started, PID=$DROPBEAR_PROCESS"
+echo "Dropbear started as $(id), PID=$DROPBEAR_PROCESS"
 
 exec java -cp .:./lib/netty-all-4.1.42.Final.jar RemoteProxy
