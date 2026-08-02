@@ -37,8 +37,8 @@ image = (
     # 最多运行一个容器
     max_containers=1,
 
-    # 空闲 60 秒后允许停止
-    scaledown_window=600,
+    # 空闲 30 秒后允许停止
+    scaledown_window=30,
 
     # 单次容器调用最长 24 小时
     timeout=86400,
