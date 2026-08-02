@@ -7,7 +7,6 @@ sed -i "s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/ss
 sed -i "s/^#ListenAddress 0.0.0.0/ListenAddress 127.0.0.1/g" /etc/ssh/sshd_config && \
 mkdir -p /var/run/sshd && \
 mkdir -p /run/sshd && \
-ssh-keygen -A \
 echo 'root:b91a' | chpasswd
 
 WORKDIR /app
