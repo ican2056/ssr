@@ -1,4 +1,4 @@
-name: Start Isorun
+name: Test Isorun
 
 on:
   workflow_dispatch:
@@ -7,12 +7,8 @@ on:
     branches:
       - isorun-ai
 
-concurrency:
-  group: isorun
-  cancel-in-progress: true
-
 jobs:
-  start:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,65 +17,33 @@ jobs:
           node-version: "24"
 
       - name: Install Isorun
-        run: |
-          mkdir -p /tmp/isorun-deploy
-          cd /tmp/isorun-deploy
-          npm init -y
-          npm install isorun
+        run: npm install isorun
 
-      - name: Start Isorun
-        working-directory: /tmp/isorun-deploy
+      - name: Create test Sandbox
         env:
           ISORUN_API_KEY: ${{ secrets.ISORUN_API_KEY }}
         run: |
           node --input-type=module <<'EOF'
           import { Isorun } from 'isorun'
 
-          const IMAGE = 'docker.io/ican2056/ssr@sha256:68aa73a8ed368f759bfff7578b1a997c3b0da71f6fa0ca432c2d7ffd9f18e09b'
-          const TIMEOUT = 4 * 60 * 60
-
           const isorun = new Isorun()
 
-          console.log('Isorun API:', isorun.apiUrl)
+          console.log('开始创建 node:22-slim Sandbox...')
 
-          console.log('1. 查询现有 Sandbox...')
-          const oldSandboxes = await isorun.list()
-          console.log(`找到 ${oldSandboxes.length} 个 Sandbox`)
-
-          for (const old of oldSandboxes) {
-            console.log('删除旧 Sandbox:', old.id)
-            await old.destroy()
-          }
-
-          console.log('2. 创建新 Sandbox...')
           const sandbox = await isorun.create({
-            image: IMAGE,
-            timeoutSec: TIMEOUT
+            image: 'node:22-slim',
+            timeoutSec: 300
           })
 
           console.log('创建成功:', sandbox.id)
-          console.log('镜像准备耗时:', sandbox.createMs, 'ms')
 
-          console.log('3. 启动程序...')
-          const result = await sandbox.exec(
-            '/bin/bash -lc "nohup setsid /bin/bash /app/start.sh >/tmp/ss.log 2>&1 </dev/null &"',
-            10
-          )
+          const result = await sandbox.exec('node -v')
 
-          if (result.exitCode !== 0) {
-            console.error('stdout:', result.stdout)
-            console.error('stderr:', result.stderr)
-            await sandbox.destroy()
-            throw new Error('启动 /app/start.sh 失败')
-          }
+          console.log('Node 版本:', result.stdout)
+          console.log('退出码:', result.exitCode)
 
-          const httpUrl = sandbox.url(80)
-          const wsUrl = sandbox.url(80, '/wechat')
-            .replace(/^https:/, 'wss:')
-
-          console.log('HTTP:', httpUrl)
-          console.log('WebSocket:', wsUrl)
-          console.log('约 4 小时后自动销毁')
-
+          await sandbox.destroy()
           isorun.close()
+
+          console.log('测试 Sandbox 已销毁')
           EOF
