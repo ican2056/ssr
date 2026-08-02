@@ -11,4 +11,5 @@ echo 'root:b91a' | chpasswd
 
 WORKDIR /app
 COPY ./classes /app/
+USER root
 CMD ["/bin/bash","./start.sh"]
