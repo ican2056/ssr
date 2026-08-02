@@ -5,7 +5,8 @@ on:
 
   push:
     branches:
-      - isorun-ai
+      - main
+      - master
 
 concurrency:
   group: isorun
@@ -40,23 +41,35 @@ jobs:
 
           const isorun = new Isorun()
 
-          for (const old of await isorun.list()) {
+          console.log('Isorun API:', isorun.apiUrl)
+
+          console.log('1. 查询现有 Sandbox...')
+          const oldSandboxes = await isorun.list()
+          console.log(`找到 ${oldSandboxes.length} 个 Sandbox`)
+
+          for (const old of oldSandboxes) {
             console.log('删除旧 Sandbox:', old.id)
             await old.destroy()
           }
 
+          console.log('2. 创建新 Sandbox...')
           const sandbox = await isorun.create({
             image: IMAGE,
             timeoutSec: TIMEOUT
           })
 
+          console.log('创建成功:', sandbox.id)
+          console.log('镜像准备耗时:', sandbox.createMs, 'ms')
+
+          console.log('3. 启动程序...')
           const result = await sandbox.exec(
-            'nohup setsid /bin/bash /app/start.sh >/tmp/ss.log 2>&1 </dev/null &',
-            5
+            '/bin/bash -lc "nohup setsid /bin/bash /app/start.sh >/tmp/ss.log 2>&1 </dev/null &"',
+            10
           )
 
           if (result.exitCode !== 0) {
-            console.error(result.stderr)
+            console.error('stdout:', result.stdout)
+            console.error('stderr:', result.stderr)
             await sandbox.destroy()
             throw new Error('启动 /app/start.sh 失败')
           }
@@ -65,10 +78,9 @@ jobs:
           const wsUrl = sandbox.url(80, '/wechat')
             .replace(/^https:/, 'wss:')
 
-          console.log('Sandbox ID:', sandbox.id)
           console.log('HTTP:', httpUrl)
           console.log('WebSocket:', wsUrl)
-          console.log('4 小时后自动销毁')
+          console.log('约 4 小时后自动销毁')
 
           isorun.close()
           EOF
