@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - main
+      - simple
     paths:
       - "modal_app.py"
       - ".github/workflows/deploy-modal.yml"
