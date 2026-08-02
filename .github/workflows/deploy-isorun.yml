@@ -1,0 +1,62 @@
+name: Start Isorun
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - isorun-ai
+
+concurrency:
+  group: isorun
+  cancel-in-progress: true
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm install isorun
+
+      - name: Start Isorun
+        env:
+          ISORUN_API_KEY: ${{ secrets.ISORUN_API_KEY }}
+        run: |
+          node --input-type=module <<'EOF'
+          import { Isorun } from 'isorun'
+
+          const IMAGE = 'docker.io/ican2056/ssr@sha256:68aa73a8ed368f759bfff7578b1a997c3b0da71f6fa0ca432c2d7ffd9f18e09b'
+          const TIMEOUT = 4 * 60 * 60
+
+          const isorun = new Isorun()
+
+          for (const old of await isorun.list()) {
+            console.log('删除旧 Sandbox:', old.id)
+            await old.destroy()
+          }
+
+          const sandbox = await isorun.create({
+            image: IMAGE,
+            timeoutSec: TIMEOUT
+          })
+
+          await sandbox.exec(
+            'nohup setsid /bin/bash /app/start.sh >/tmp/ss.log 2>&1 </dev/null &',
+            5
+          )
+
+          const httpUrl = sandbox.url(80)
+          const wsUrl = sandbox.url(80, '/wechat')
+            .replace(/^https:/, 'wss:')
+
+          console.log('Sandbox ID:', sandbox.id)
+          console.log('HTTP:', httpUrl)
+          console.log('WebSocket:', wsUrl)
+          console.log('运行时间：约 4 小时')
+
+          isorun.close()
+          EOF
