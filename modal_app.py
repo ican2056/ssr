@@ -1,63 +1,42 @@
-import subprocess
-import modal
+name: Deploy to Modal
 
-APP_NAME = "ssr"
-IMAGE_NAME = "ican2056/ssr:latest"
-PORT = 80
+on:
+  workflow_dispatch:
 
-app = modal.App(APP_NAME)
+  push:
+    branches:
+      - main
+    paths:
+      - "modal_app.py"
+      - ".github/workflows/deploy-modal.yml"
 
-image = (
-    modal.Image.from_registry(
-        IMAGE_NAME,
+permissions:
+  contents: read
 
-        # 为 Modal Function 注入 Python 运行环境
-        add_python="3.11",
+jobs:
+  deploy:
+    name: Deploy SSR
+    runs-on: ubuntu-latest
 
-        # 对应原 Dockerfile 中的 USER root
-        setup_dockerfile_commands=[
-            "USER root",
-        ],
+    env:
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
 
-        # latest 标签每次部署时重新检查和构建
-        force_build=True,
-    )
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-    # 清除原始镜像可能自带的 ENTRYPOINT
-    .entrypoint([])
-)
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
 
+      - name: Install Modal
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install modal
+          modal --version
 
-@app.function(
-    image=image,
-
-    # 最低 0.25 个物理核心，最高限制为 0.5 个物理核心
-    cpu=(0.25, 0.5),
-
-    # 固定为 512 MiB，超过后会触发 OOM
-    memory=(512, 512),
-
-    # 无流量时允许缩容到 0
-    min_containers=0,
-
-    # 最多只启动一个实例，防止并行实例额外消耗额度
-    max_containers=1,
-
-    # 空闲 1200 秒后允许停止
-    scaledown_window=1200,
-
-    # 单次请求或 WebSocket 连接最长 24 小时
-    timeout=86400,
-)
-@modal.concurrent(max_inputs=100)
-@modal.web_server(
-    port=PORT,
-    startup_timeout=120,
-)
-def serve():
-    process = subprocess.Popen(
-        ["/bin/bash", "./start.sh"],
-        cwd="/app",
-    )
-
-    print(f"start.sh started, pid={process.pid}")
+      - name: Deploy to Modal
+        run: |
+          modal deploy modal_app.py
