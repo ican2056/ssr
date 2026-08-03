@@ -35,7 +35,7 @@ jobs:
           node --input-type=module <<'EOF'
           import { Isorun } from 'isorun'
 
-          const IMAGE = 'docker.io/ican2056/ssr:latest'
+          const IMAGE = 'docker.io/ican2056/ssr:v1'
           const TIMEOUT = 4 * 60 * 60
 
           const isorun = new Isorun()
