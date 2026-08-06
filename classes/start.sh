@@ -2,7 +2,7 @@
 
 /usr/sbin/sshd
 java \
-  -Xms384m \
+  -Xms256m \
   -Xmx384m \
   -XX:MaxMetaspaceSize=96m \
   -XX:MaxDirectMemorySize=64m \
